@@ -49,3 +49,20 @@ printf "docker run --rm --name letsencrypt \n\
     -v /usr/share/nginx/html:/usr/share/nginx/html \n\
     certbot/certbot:latest \n\
     certonly --non-interactive --webroot -w /usr/share/nginx/html --email $ORG_EMAIL --agree-tos --no-eff-email -d $SERVICE_DNS"
+
+#To create SSL for Wildcard domain name(s)
+docker run --rm -it \
+    -p 443:443 \
+    -p 80:80 \
+    --name letsencrypt \
+    -v /etc/letsencrypt:/etc/letsencrypt \
+    -v /var/lib/letsencrypt:/var/lib/letsencrypt \
+    certbot/certbot:latest \
+    certonly --manual  --force-renewal --email technology@victoriabros.com --agree-tos --server https://acme-v02.api.letsencrypt.org/directory --preferred-challenges=dns --no-eff-email -d <domain-you-created-newly.com> -d *.<domain-you-created-newly.com>
+
+
+# REMEMBER TO add DNS TXT to domain provider (following the prompt below)
+# Please deploy a DNS TXT record under the name:
+# _acme-challenge.<domain-you-created-newly.com>.
+# with the following value:
+# <some-value>
