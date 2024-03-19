@@ -3,6 +3,7 @@
 # vars
 PROJECT_NAME=nginx
 SERVICE_DNS=qa.streambix.com
+WILDCARD_DNS=*.qa.streambix.com
 ORG_NAME=victoriabros
 ORG_EMAIL=technology@victoriabros.com
 NETWORK="${ORG_NAME}_net"
@@ -43,9 +44,27 @@ printf "$ docker run -d \n\
 printf "\n\n# letsencrypt certificate renewal\n"
 # nginx.conf has provisions for letsencrypt .well-known path for the webroot verification method.
 # run command on cron periodically and cert will be renewed before expiring.
-printf "docker run --rm --name letsencrypt \n\
+printf "$ docker run --rm --name letsencrypt \n\
     -v /etc/letsencrypt:/etc/letsencrypt \n\
     -v /var/lib/letsencrypt:/var/lib/letsencrypt \n\
     -v /usr/share/nginx/html:/usr/share/nginx/html \n\
     certbot/certbot:latest \n\
     certonly --non-interactive --webroot -w /usr/share/nginx/html --email $ORG_EMAIL --agree-tos --no-eff-email -d $SERVICE_DNS"
+
+# To create SSL for Wildcard domain name(s)
+printf "\n\n# letsencrypt certificate for wildcard domain name(s)\n"
+printf "$ docker run --rm -it \n \
+    -p 443:443 \n \
+    -p 80:80 \n \
+    --name letsencrypt \n \
+    -v /etc/letsencrypt:/etc/letsencrypt \n \
+    -v /var/lib/letsencrypt:/var/lib/letsencrypt \n \
+    certbot/certbot:latest \n \
+    certonly --manual  --force-renewal --email $ORG_EMAIL --agree-tos --server https://acme-v02.api.letsencrypt.org/directory --preferred-challenges=dns --no-eff-email -d $SERVICE_DNS -d $WILDCARD_DNS"
+
+
+printf "\n\n# REMEMBER TO add DNS TXT to domain provider (following the prompt below)
+# Please deploy a DNS TXT record under the name:
+# _acme-challenge.<domain-you-created-newly.com>.
+# with the following value:
+# <some-value>\n"
