@@ -3,6 +3,7 @@
 # vars
 PROJECT_NAME=nginx
 SERVICE_DNS=qa.streambix.com
+WILDCARD_DNS=*.qa.streambix.com
 ORG_NAME=victoriabros
 ORG_EMAIL=technology@victoriabros.com
 NETWORK="${ORG_NAME}_net"
@@ -50,7 +51,8 @@ printf "$ docker run --rm --name letsencrypt \n\
     certbot/certbot:latest \n\
     certonly --non-interactive --webroot -w /usr/share/nginx/html --email $ORG_EMAIL --agree-tos --no-eff-email -d $SERVICE_DNS"
 
-#To create SSL for Wildcard domain name(s)
+# To create SSL for Wildcard domain name(s)
+printf "\n\n# letsencrypt certificate for wildcard domain name(s)\n"
 printf "$ docker run --rm -it \n \
     -p 443:443 \n \
     -p 80:80 \n \
