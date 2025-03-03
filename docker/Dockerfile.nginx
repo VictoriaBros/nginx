@@ -1,5 +1,25 @@
 FROM nginx:alpine
 
+ARG GITHUB_USERNAME
+ARG GITHUB_BRANCH_OR_SHA
+ARG GITHUB_TOKEN
+ARG GITHUB_REPOSITORIES
+ARG NGINX_REPOSITORY_FILE_PATH
+ARG NGINX_OUTPUT_DIR
+
+for REPOSITORY in $GITHUB_REPOSITORIES; do
+    echo "download $NGINX_REPOSITORY_FILE_PATH..."
+    output_file_path="$NGINX_OUTPUT_DIR/$REPOSITORY.$(basename "$NGINX_REPOSITORY_FILE_PATH")"
+     echo "$output_file_path"
+     curl -H "Authorization: token $GITHUB_TOKEN" \
+        -H "Accept: application/vnd.github.v3.raw" \
+        -o "$output_file_path" \
+        "https://raw.githubusercontent.com/$GITHUB_USERNAME/$REPOSITORY/$GITHUB_BRANCH_OR_SHA/$NGINX_REPOSITORY_FILE_PATH"
+done
+
+COPY nginx/data /data/
+COPY nginx/conf.d /etc/nginx/conf.d/
+
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
-COPY nginx/options-ssl-nginx.conf /etc/letsencrypt/options-ssl-nginx.conf
-COPY nginx/ssl-dhparam.pem /etc/letsencrypt/ssl-dhparam.pem
+COPY nginx/ssl/options-ssl-nginx.conf /etc/letsencrypt/options-ssl-nginx.conf
+COPY nginx/ssl/ssl-dhparam.pem /etc/letsencrypt/ssl-dhparam.pem
