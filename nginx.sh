@@ -1,13 +1,14 @@
 #!/bin/bash
 
 # vars
-PROJECT_NAME=nginx
-SERVICE_DNS=qa.streambix.com
-WILDCARD_DNS=*.qa.streambix.com
-ORG_NAME=victoriabros
-ORG_EMAIL=technology@victoriabros.com
+PROJECT_NAME=${PROJECT_NAME:-nginx}
+SERVICE_DNS=${SERVICE_DNS:-streambix.com}
+WILDCARD_DNS=${WILDCARD_DNS:-*.streambix.com}
+ORG_NAME=${ORG_NAME:-victoriabros}
+ORG_EMAIL=${ORG_EMAIL:-technology@victoriabros.com}
 NETWORK="${ORG_NAME}_net"
 
+# out
 printf "# configure Nginx\n"
 printf "# request letsencrypt certificate once\n"
 printf "$ docker run --rm \n\
@@ -20,14 +21,14 @@ printf "$ docker run --rm \n\
     certonly --non-interactive --standalone --email $ORG_EMAIL --agree-tos --no-eff-email -d $SERVICE_DNS"
 
 printf "\n\n# build nginx image\n"
-printf "$ docker build -f docker/Dockerfile.nginx -t $ORG_NAME/$PROJECT_NAME:latest ."
+printf "$ cat docker/.env.docker | xargs printf -- '--build-arg %s\n' | xargs docker build -f docker/Dockerfile.nginx -t $ORG_NAME/$PROJECT_NAME:latest --no-cache ."
 
 
 printf "\n\n# create corporate network for service discovery\n"
 printf "$ docker network create -d bridge $NETWORK"
 
 printf "\n\n# manually add network to existing required docker instances\n"
-printf "# --net victoriabros_net\n"
+printf "# --net $NETWORK\n"
 
 printf "\n\n# start nginx container\n"
 printf "# nginx should redirect any requests on port 80 or 443\n"
