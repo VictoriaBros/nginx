@@ -31,6 +31,8 @@ Replace the placeholder `<replace_with_github_token>` in file `docker/.env.docke
 - Contents as **Read-Only**
 
 ```bash
+# change docker env to own credentials and preference
+$ vim docker/.env.docker
 $ cat docker/.env.docker | xargs printf -- '--build-arg %s\n' | xargs docker build -t victoriabros/nginx -f docker/Dockerfile.nginx --no-cache .
 ```
 
